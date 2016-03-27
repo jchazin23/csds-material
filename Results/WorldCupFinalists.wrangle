@@ -1,0 +1,44 @@
+splitrows col: column1 on: '|-' quote: '\"'
+split col: column1 on: '!!' limit: 5
+replace col: column2 on: `{start}{delim-ws}` with: ''
+delete row: matches([column2], `<div id="1">\'\'<nowiki>\*</nowiki> = hosts\'\'\n:<div id="2">\'\'<nowiki>^</nowiki> = includes results [[List of men\'s national association footb`)
+header
+replace col: Team on: `bgcolor=\#FFF68F` with: '' global: true
+replace col: Team on: `{start}{delim}` with: ''
+replace col: Team on: `\|\|` with: '\\|' global: true
+replace col: Team on: `\\` with: '' global: true
+replace col: Team on: `[[\#2\|^]]` with: '' global: true
+replace col: Team on: `[[\#1\|\*]]` with: '' global: true
+replace col: Team on: `<sup>[[\#3\|\#]]</sup>` with: '' global: true
+split col: Team on: '\n|' limit: 5
+replace col: Team1 on: `\{\{fb\|` with: '' global: true
+replace col: Team1 on: `\}\}` with: '' global: true
+drop col: Titles
+drop col: Runners_up
+drop col: Third_place
+drop col: Fourth_place
+drop col: Top_4_br_finishes
+drop col: Team6
+replace col: Team2,Team3,Team4,Team5 on: `{start}{digit} ` with: ''
+replace col: Team2,Team3,Team4,Team5 on: ` {upper}{4} {alpha}{5} {alpha}{3}\|{digit}{4}]]` with: '' global: true
+replace col: Team4 on: ` FIFA World Cup\|2006\*]]` with: '' global: true
+replace col: Team2,Team3,Team4,Team5 on: `\([` with: '' global: true
+replace col: Team2,Team3,Team4,Team5 on: ` [[` with: '' global: true
+replace col: Team2,Team3,Team4,Team5 on: `\)` with: ']' global: true
+replace col: Team2,Team3,Team4,Team5 on: `align=center\| —` with: '[]' global: true
+rename col: Team1 to: 'Country'
+rename col: Team2 to: 'First'
+rename col: Team3 to: 'Second'
+rename col: Team4 to: 'Third'
+rename col: Team5 to: 'Fourth'
+unpivot col: First,Second,Third,Fourth
+unnest col: value
+move col: key after: unnest_value
+drop col: value
+rename col: unnest_value to: 'Year'
+rename col: key to: 'Place'
+replace col: Place on: `First` with: '1'
+replace col: Place on: 'Second' with: '2'
+replace col: Place on: 'Third' with: '3'
+replace col: Place on: 'Fourth' with: '4'
+delete row: empty([Year])

@@ -1,0 +1,95 @@
+splitrows col: column1 on: '\n' quote: '\"'
+settype col: column1 type: 'String'
+keep row: matches([column1], `\| \'\'`)
+split col: column1 on: '||'
+rename col: column2 to: 'Movie_title'
+split col: column3 on: '||'
+rename col: column1 to: 'Production_or_Distribution_House'
+split col: column2 on: '||'
+rename col: column1 to: 'Personel'
+split col: column3 on: '||'
+rename col: column1 to: 'Genre'
+extract col: column2 from: `publisher=` to: `\|`
+rename col: column1 to: 'Publisher'
+replace col: Movie_title on: `\| \'\'` with: '' global: true
+replace col: Movie_title on: `\|-\\\n` with: '' global: true
+replace col: Movie_title on: `[[` with: '' global: true
+replace col: Movie_title on: `]]\'\' ` with: '' global: true
+split col: Movie_title on: `\|`
+drop col: Movie_title2
+rename col: Movie_title1 to: 'Movie_title'
+replace col: Production_or_Distribution_House on: ` [[` with: '' global: true
+replace col: Production_or_Distribution_House on: `{start}{delim}` with: ''
+replace col: Production_or_Distribution_House on: `]] ` with: '' global: true
+split col: Production_or_Distribution_House on: '|'
+drop col: Production_or_Distribution_House2
+rename col: Production_or_Distribution_House1 to: 'Production_or_Distribution_House'
+extract col: Personel before: 'irector'
+rename col: Personel1 to: 'Director'
+drop col: Personel
+replace col: Director on: ` [[` with: '' global: true
+replace col: Director on: `{start}{delim}` with: ''
+replace col: Director on: `]] \(d` with: '' global: true
+replace col: Director on: `]]` with: '' global: true
+replace col: Director on: ` \(d` with: '' global: true
+split col: Director on: `,`
+replace col: Director1 on: ` \(film d` with: '' global: true
+split col: Director1 on: `\|`
+drop col: Director4
+split col: Director2 on: `\|`
+drop col: Director4
+replace col: Director3 on: ` and` with: ',' global: true
+merge col: Director3,', ',Director1 as: 'column1'
+rename col: column1 to: 'Director'
+drop col: Director3
+drop col: Director1
+replace col: Director on: `{delim-ws}{end}` with: ''
+multisplit col: Genre on: ',',',',','
+replace col: multisplit_Genre1 on: `[[` with: '' global: true
+replace col: multisplit_Genre1 on: `{start}{delim}` with: ''
+split col: multisplit_Genre1 on: `\|`
+drop col: multisplit_Genre6
+replace col: multisplit_Genre5 on: `]]` with: '' global: true
+replace col: multisplit_Genre5 on: ` film` with: '' global: true
+replace col: multisplit_Genre5 on: ` \(genre\)` with: '' global: true
+replace col: multisplit_Genre2 on: ` [[` with: '' global: true
+replace col: multisplit_Genre2 on: `{start}{delim}` with: ''
+split col: multisplit_Genre2 on: `\|`
+drop col: multisplit_Genre6
+replace col: multisplit_Genre1 on: `]] ` with: '' global: true
+replace col: multisplit_Genre1 on: ` \(genre\)` with: '' global: true
+replace col: multisplit_Genre1 on: ` film` with: '' global: true
+replace col: multisplit_Genre1 on: ` \(film\)` with: '' global: true
+replace col: multisplit_Genre5 on: `{delim}{end}` with: ''
+replace col: multisplit_Genre1 on: `{delim}{end}` with: ''
+replace col: multisplit_Genre3 on: ` [[` with: '' global: true
+split col: multisplit_Genre3 on: `\|`
+drop col: multisplit_Genre6
+replace col: multisplit_Genre2 on: ` film` with: '' global: true
+replace col: multisplit_Genre2 on: `{start}{delim}` with: ''
+replace col: multisplit_Genre2 on: `]] ` with: '' global: true
+replace col: multisplit_Genre2 on: ` ` with: '' global: true
+replace col: multisplit_Genre2 on: `\(genre\)` with: '' global: true
+replace col: multisplit_Genre2 on: `]]` with: '' global: true
+replace col: multisplit_Genre4 on: `{start}{delim}` with: ''
+replace col: multisplit_Genre4 on: `[[` with: '' global: true
+replace col: multisplit_Genre4 on: `{delim}{end}` with: ''
+split col: multisplit_Genre4 on: `\|`
+drop col: multisplit_Genre6
+merge col: multisplit_Genre5, ',', multisplit_Genre1, ',', multisplit_Genre2, ',', multisplit_Genre3 as: 'column1'
+replace col: column1 on: `,,,` with: '' global: true
+replace col: column1 on: `,,` with: '' global: true
+replace col: column1 on: `{delim}{end}` with: ''
+replace col: column1 on: `{start}{delim}` with: ''
+rename col: column1 to: 'Genre'
+drop col: multisplit_Genre3
+drop col: multisplit_Genre2
+drop col: multisplit_Genre1
+drop col: multisplit_Genre5
+replace col: Publisher on: `publisher=` with: '' global: true
+replace col: Publisher on: `{delim-ws}{end}` with: ''
+replace col: Publisher on: `{delim}{end}` with: ''
+replace col: Publisher on: `[[` with: '' global: true
+replace col: Publisher on: `/Film` with: '' global: true
+drop col: column2
+set col: Publisher value: 'N\/A' row: empty([Publisher])
